@@ -1,5 +1,5 @@
 // src/components/Canvas.js
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import ReactFlow, {
   MiniMap,
   Controls,
@@ -7,7 +7,7 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
-  removeElements,
+  Position
 } from "react-flow-renderer";
 import { v4 as uuidv4 } from "uuid";
 import Module from "./Module";
@@ -20,11 +20,11 @@ const nodeTypes = {
 };
 
 const initialNodes = [
-  { id: '1', type: 'apiEndpoint', position: { x: 0, y: 100 }, data: { label: 'API Endpoint 1', commands: "" } },
-  { id: '2', type: 'apiEndpoint', position: { x: 0, y: 300 }, data: { label: 'API Endpoint 2', commands: "" } },
-  { id: '4', type: 'llmProcessor', position: { x: 200, y: 100 }, data: { label: 'LLM - Processor 1', commands: "Activate: API Endpoint 1" } },
-  { id: '5', type: 'llmProcessor', position: { x: 200, y: 300 }, data: { label: 'LLM - Processor 2', commands: "Activate: API Endpoint 2" } },
-  { id: '7', type: 'llmCoordinator', position: { x: 400, y: 200 }, data: { label: 'LLM - Coordinator 1', commands: "Activate: LLM - Processor 1\nActivate: LLM - Processor 2" } },
+  { id: '1', type: 'apiEndpoint', position: { x: 0, y: 100 }, data: { label: 'API Endpoint 1', commands: "" }, sourcePosition: Position.Right, targetPosition: Position.Left },
+  { id: '2', type: 'apiEndpoint', position: { x: 0, y: 300 }, data: { label: 'API Endpoint 2', commands: "" }, sourcePosition: Position.Right, targetPosition: Position.Left },
+  { id: '4', type: 'llmProcessor', position: { x: 200, y: 100 }, data: { label: 'LLM - Processor 1', commands: "Activate: API Endpoint 1" }, sourcePosition: Position.Right, targetPosition: Position.Left },
+  { id: '5', type: 'llmProcessor', position: { x: 200, y: 300 }, data: { label: 'LLM - Processor 2', commands: "Activate: API Endpoint 2" }, sourcePosition: Position.Right, targetPosition: Position.Left },
+  { id: '7', type: 'llmCoordinator', position: { x: 400, y: 200 }, data: { label: 'LLM - Coordinator 1', commands: "Activate: LLM - Processor 1\nActivate: LLM - Processor 2" }, sourcePosition: Position.Right, targetPosition: Position.Left },
 ];
 
 const initialEdges = [
@@ -49,6 +49,8 @@ const Canvas = () => {
       type: "llmProcessor",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: { label: `LLM - Processor ${processorCount + 1}`, commands: "" },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
     };
     setNodes((nds) => nds.concat(newNode));
   };
@@ -60,6 +62,8 @@ const Canvas = () => {
       type: "llmCoordinator",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: { label: `LLM - Coordinator ${coordinatorCount + 1}`, commands: "" },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
     };
     setNodes((nds) => nds.concat(newNode));
   };
@@ -71,6 +75,8 @@ const Canvas = () => {
       type: "database",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: { label: `Database ${databaseCount + 1}`, commands: "" },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
     };
     setNodes((nds) => nds.concat(newNode));
   };
@@ -82,13 +88,14 @@ const Canvas = () => {
       type: "apiEndpoint",
       position: { x: Math.random() * 400, y: Math.random() * 400 },
       data: { label: `API Endpoint ${apiCount + 1}`, commands: "" },
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
     };
     setNodes((nds) => nds.concat(newNode));
   };
 
-  const onConnect = (params) => {
+  const onConnect = useCallback((params) => {
     setEdges((eds) => addEdge(params, eds));
-
     const sourceNode = nodes.find((node) => node.id === params.source);
     const targetNode = nodes.find((node) => node.id === params.target);
 
@@ -109,7 +116,7 @@ const Canvas = () => {
 
       setNodes(updatedNodes);
     }
-  };
+  }, [nodes, setEdges, setNodes]);
 
   const deleteModule = (nodeId) => {
     setNodes((nds) => nds.filter((node) => node.id !== nodeId));
@@ -146,6 +153,7 @@ const Canvas = () => {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         fitView
+        className="touch-flow" // Class for custom touch styles if needed
       >
         <MiniMap />
         <Controls />

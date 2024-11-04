@@ -1,4 +1,3 @@
-// src/components/Module.js
 import React, { useState, useEffect } from "react";
 import { Handle, Position } from "react-flow-renderer";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
@@ -8,16 +7,19 @@ const Module = ({ data, id, onUpdateCommands = () => {}, onDelete }) => {
   const [showEdit, setShowEdit] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Show the edit icon when hovering over the module
   const handleMouseEnter = () => setShowEdit(true);
   const handleMouseLeave = () => {
     if (!isModalOpen) setShowEdit(false);
   };
 
+  // Open modal to edit module details
   const openModal = () => {
     setIsModalOpen(true);
     setShowEdit(false);
   };
 
+  // Close modal and hide the edit icon
   const closeModal = () => {
     setIsModalOpen(false);
     setShowEdit(false);
@@ -25,7 +27,7 @@ const Module = ({ data, id, onUpdateCommands = () => {}, onDelete }) => {
 
   useEffect(() => {
     if (data.commands) {
-      onUpdateCommands(data.commands);
+      onUpdateCommands(data.commands); // Update parent component when commands change
     }
   }, [data.commands, onUpdateCommands]);
 
@@ -39,7 +41,8 @@ const Module = ({ data, id, onUpdateCommands = () => {}, onDelete }) => {
           border: "1px solid #b1b1b7",
           borderRadius: "5px",
           backgroundColor: "#fff",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
+          boxShadow:
+            "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
           width: "150px",
           textAlign: "center",
           fontFamily: "Arial, sans-serif",
@@ -82,50 +85,62 @@ const Module = ({ data, id, onUpdateCommands = () => {}, onDelete }) => {
           </div>
         )}
 
+        {/* Target Handle with Tooltip and Custom Color */}
         <Handle
           type="target"
           position={Position.Top}
           id="top"
-          className="handle"
           style={{
-            top: "-8px",
+            background: "#ff5959", // Red color for target
+            top: "-4px",
             left: "50%",
             transform: "translateX(-50%)",
           }}
+          onMouseOver={(e) => (e.target.title = "Target")} // Tooltip
         />
+
+        {/* Source Handle with Tooltip and Custom Color */}
         <Handle
           type="source"
           position={Position.Left}
           id="left"
-          className="handle"
           style={{
+            background: "#4caf50", // Green color for source
             top: "50%",
-            left: "-8px",
+            left: "-4px",
             transform: "translateY(-50%)",
           }}
+          onMouseOver={(e) => (e.target.title = "Source")} // Tooltip
         />
+        
         <div>{data.label}</div>
+        
+        {/* Source Handle with Tooltip and Custom Color */}
         <Handle
           type="source"
           position={Position.Bottom}
           id="bottom"
-          className="handle"
           style={{
-            bottom: "-8px",
+            background: "#4caf50", // Green color for source
+            bottom: "-4px",
             left: "50%",
             transform: "translateX(-50%)",
           }}
+          onMouseOver={(e) => (e.target.title = "Source")} // Tooltip
         />
+        
+        {/* Target Handle with Tooltip and Custom Color */}
         <Handle
           type="target"
           position={Position.Right}
           id="right"
-          className="handle"
           style={{
+            background: "#ff5959", // Red color for target
             top: "50%",
-            right: "-8px",
+            right: "-4px",
             transform: "translateY(-50%)",
           }}
+          onMouseOver={(e) => (e.target.title = "Target")} // Tooltip
         />
       </div>
 
