@@ -7,11 +7,11 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   addEdge,
+  removeElements,
 } from "react-flow-renderer";
 import { v4 as uuidv4 } from "uuid";
 import Module from "./Module";
 
-// Define nodeTypes outside the component to prevent re-creation
 const nodeTypes = {
   llmProcessor: Module,
   llmCoordinator: Module,
@@ -19,13 +19,28 @@ const nodeTypes = {
   apiEndpoint: Module,
 };
 
+const initialNodes = [
+  { id: '1', type: 'apiEndpoint', position: { x: 0, y: 100 }, data: { label: 'API Endpoint 1', commands: "" } },
+  { id: '2', type: 'apiEndpoint', position: { x: 0, y: 300 }, data: { label: 'API Endpoint 2', commands: "" } },
+  { id: '4', type: 'llmProcessor', position: { x: 200, y: 100 }, data: { label: 'LLM - Processor 1', commands: "Activate: API Endpoint 1" } },
+  { id: '5', type: 'llmProcessor', position: { x: 200, y: 300 }, data: { label: 'LLM - Processor 2', commands: "Activate: API Endpoint 2" } },
+  { id: '7', type: 'llmCoordinator', position: { x: 400, y: 200 }, data: { label: 'LLM - Coordinator 1', commands: "Activate: LLM - Processor 1\nActivate: LLM - Processor 2" } },
+];
+
+const initialEdges = [
+  { id: 'e1-4', source: '4', target: '1' },
+  { id: 'e2-5', source: '5', target: '2' },
+  { id: 'e7-4', source: '7', target: '4' },
+  { id: 'e7-5', source: '7', target: '5' },
+];
+
 const Canvas = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [processorCount, setProcessorCount] = useState(0);
-  const [coordinatorCount, setCoordinatorCount] = useState(0);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [processorCount, setProcessorCount] = useState(2);
+  const [coordinatorCount, setCoordinatorCount] = useState(1);
   const [databaseCount, setDatabaseCount] = useState(0);
-  const [apiCount, setApiCount] = useState(0);
+  const [apiCount, setApiCount] = useState(2);
 
   const addLLMProcessorModule = () => {
     setProcessorCount((count) => count + 1);
@@ -96,6 +111,11 @@ const Canvas = () => {
     }
   };
 
+  const deleteModule = (nodeId) => {
+    setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+    setEdges((eds) => eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId));
+  };
+
   return (
     <div style={{ height: "80vh", width: "100%" }}>
       <div className="canvas-button-container">
@@ -113,7 +133,13 @@ const Canvas = () => {
         </button>
       </div>
       <ReactFlow
-        nodes={nodes}
+        nodes={nodes.map((node) => ({
+          ...node,
+          data: {
+            ...node.data,
+            onDelete: () => deleteModule(node.id),
+          },
+        }))}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
